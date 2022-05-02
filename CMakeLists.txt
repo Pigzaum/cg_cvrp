@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.08)
 
 # set the project name and version
-project(cg_cvrp VERSION 0.0.1 LANGUAGES CXX)
+project(cg_cvrp VERSION 0.0.11 LANGUAGES CXX)
 
 configure_file("./cmake/cmake_config.hpp.in" "../include/utils/cmake_config.hpp")
 
@@ -49,7 +49,7 @@ set(SOURCES
     src/column_generation/init_grb_model.cpp
     src/column_generation/init_pool.cpp
     src/column_generation/set_covering_lp.cpp
-    src/column_generation/tsp_bcsl_ilp.cpp
+    src/column_generation/pctsp_ilp.cpp
     src/utils/helper.cpp
     src/utils/stopwatch.cpp
     src/utils/tools.cpp
@@ -169,7 +169,7 @@ set(HEADERS
     include/column_generation/init_grb_model.hpp
     include/column_generation/init_pool.hpp
     include/column_generation/set_covering_lp.hpp
-    include/column_generation/tsp_bcsl_ilp.hpp
+    include/column_generation/pctsp_ilp.hpp
     include/utils/helper.hpp
     include/utils/multi_vector.hpp
     include/utils/stopwatch.hpp

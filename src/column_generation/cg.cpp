@@ -15,7 +15,7 @@
 #include "../../include/column_generation/cg.hpp"
 #include "../../include/column_generation/column.hpp"
 #include "../../include/column_generation/set_covering_lp.hpp"
-#include "../../include/column_generation/tsp_bcsl_ilp.hpp"
+#include "../../include/column_generation/pctsp_ilp.hpp"
 #include "../../include/utils/stopwatch.hpp"
 
 
@@ -58,7 +58,7 @@ bool Cg::execute(const ConfigParameters::solver& solverParams)
 bool Cg::generateColumn()
 {
     // build subproblem
-    TspBcslIlp subproblem(mpRMP, mpInst);
+    PctspIlp subproblem(mpRMP, mpInst);
 
     // solve subproblem
     subproblem.optimize();

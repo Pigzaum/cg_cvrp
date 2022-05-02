@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*
- * File: tsp_bcsl_ilp.hpp
+ * File: pctsp_ilp.hpp
  *
- * @brief Travelling salesman problem (TSP) CG Bixby-Coullard-Simchi-Levi (BCSL)
- * subproblem [1] class declaration. It is a prize collection TSP. This model is
+ * @brief Prize collecting Travelling salesman problem (PCTSP)
+ * Bixby-Coullard-Simchi-Levi CG subproblem [1] class declaration. This model is
  * used as the subproblem of the column generation algorithm as described by
  * [1, 2]. Note, however, that we only use the subtour elimination constraints
  * (SEC) rather than others cuts as [1].
@@ -20,8 +20,8 @@
  */
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TSP_BCSL_ILP_HPP
-#define TSP_BCSL_ILP_HPP
+#ifndef PCTSP_ILP_HPP
+#define PCTSP_ILP_HPP
 
 #include "../base_lp.hpp"
 #include "../utils/multi_vector.hpp"
@@ -31,18 +31,18 @@ class Column;
 class Instance;
 class SetCoveringLp;
 
-class TspBcslIlp : public BaseLp
+class PctspIlp : public BaseLp
 {
 public:
 
-    TspBcslIlp() = default;
-    TspBcslIlp(const TspBcslIlp& other) = default;
-    TspBcslIlp(TspBcslIlp&& other) = default;
-    ~TspBcslIlp() = default;
-    TspBcslIlp& operator=(const TspBcslIlp& other) = default;
-    TspBcslIlp& operator=(TspBcslIlp&& other) = default;
+    PctspIlp() = default;
+    PctspIlp(const PctspIlp& other) = default;
+    PctspIlp(PctspIlp&& other) = default;
+    ~PctspIlp() = default;
+    PctspIlp& operator=(const PctspIlp& other) = default;
+    PctspIlp& operator=(PctspIlp&& other) = default;
 
-    TspBcslIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
+    PctspIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
                const std::shared_ptr<const Instance>& pInst);
 
     std::pair<Column, double> extractColumn() const;
@@ -60,4 +60,4 @@ private:
     void initModel();
 };
 
-#endif // TSP_BCSL_ILP_HPP
+#endif // PCTSP_ILP_HPP

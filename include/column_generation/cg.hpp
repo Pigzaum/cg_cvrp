@@ -28,6 +28,7 @@
 
 class Column;
 class Instance;
+class PctspIlp;
 class SetCoveringLp;
 
 class Cg
@@ -53,6 +54,8 @@ private:
 
     // restricted main problem (RMP)
     std::shared_ptr<SetCoveringLp> mpRMP;
+    // subproblem
+    std::shared_ptr<PctspIlp> mpSubproblem;
     // pointer to instance
     std::shared_ptr<const Instance> mpInst;
 

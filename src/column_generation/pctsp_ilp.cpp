@@ -24,7 +24,7 @@
 
 #include "../../include/ext/loguru/loguru.hpp"
 
-#include "../../include/column_generation/tsp_bcsl_ilp.hpp"
+#include "../../include/column_generation/pctsp_ilp.hpp"
 #include "../../include/instance.hpp"
 #include "../../include/column_generation/callback_sec.hpp"
 #include "../../include/column_generation/column.hpp"
@@ -45,7 +45,7 @@ const std::string cBaseName = "tsp_bcsl_";
 /* -------------------------------------------------------------------------- */
 
 
-TspBcslIlp::TspBcslIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
+PctspIlp::PctspIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
                        const std::shared_ptr<const Instance>& pInst) :
     BaseLp(pRMP->getGRBEnv(), pInst),
     mpRMP(pRMP),
@@ -55,7 +55,7 @@ TspBcslIlp::TspBcslIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
 }
 
 
-std::pair<Column, double> TspBcslIlp::extractColumn() const
+std::pair<Column, double> PctspIlp::extractColumn() const
 {
     double rc = 0;
     Column column(mpInst);
@@ -78,12 +78,12 @@ std::pair<Column, double> TspBcslIlp::extractColumn() const
     }
     catch (GRBException& e)
     {
-        RAW_LOG_F(FATAL, "TspBcslIlp::extractColumn(): C-Exp: %s",
+        RAW_LOG_F(FATAL, "PctspIlp::extractColumn(): C-Exp: %s",
             e.getMessage().c_str());
     }
     catch (...)
     {
-        RAW_LOG_F(FATAL, "TspBcslIlp::extractColumn(): Unknown Exception");
+        RAW_LOG_F(FATAL, "PctspIlp::extractColumn(): Unknown Exception");
     }
 
     return {column, rc};
@@ -91,7 +91,7 @@ std::pair<Column, double> TspBcslIlp::extractColumn() const
 
 /* ----------------------------- private methods ---------------------------- */
 
-void TspBcslIlp::initModel()
+void PctspIlp::initModel()
 {
     try
     {
@@ -117,11 +117,11 @@ void TspBcslIlp::initModel()
     }
     catch (GRBException& e)
     {
-        RAW_LOG_F(FATAL, "TspBcslIlp::initModel(): C-Exp: %s",
+        RAW_LOG_F(FATAL, "PctspIlp::initModel(): C-Exp: %s",
             e.getMessage().c_str());
     }
     catch (...)
     {
-        RAW_LOG_F(FATAL, "TspBcslIlp::initModel(): Unknown Exception");
+        RAW_LOG_F(FATAL, "PctspIlp::initModel(): Unknown Exception");
     }
 }
