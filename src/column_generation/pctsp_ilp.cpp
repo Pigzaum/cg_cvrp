@@ -46,7 +46,7 @@ const std::string cBaseName = "tsp_bcsl_";
 
 
 PctspIlp::PctspIlp(const std::shared_ptr<SetCoveringLp>& pRMP,
-                       const std::shared_ptr<const Instance>& pInst) :
+                   const std::shared_ptr<const Instance>& pInst) :
     BaseLp(pRMP->getGRBEnv(), pInst),
     mpRMP(pRMP),
     mpCb(nullptr)
@@ -62,18 +62,22 @@ std::pair<Column, double> PctspIlp::extractColumn() const
 
     try
     {
-        rc += mpRMP->getDual(mpInst->getNbVertices()); // |V| constraint dual
+        rc -= mpRMP->getDual(mpInst->getNbVertices()); // |V| constraint dual
         rc += mModel.get(GRB_DoubleAttr_ObjVal);
 
         if (rc < 0)
         {
+            double cost = mModel.get(GRB_DoubleAttr_ObjVal);
             for (int i = 0; i < mpInst->getNbVertices(); ++i)
             {
                 if (m_y[i].get(GRB_DoubleAttr_X) > utils::GRB_EPSILON)
                 {
                     column.addVertex(i);
+                    cost -= m_y[i].get(GRB_DoubleAttr_Obj);
                 }
             }
+
+            column.setCost(cost);
         }
     }
     catch (GRBException& e)

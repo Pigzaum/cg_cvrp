@@ -77,6 +77,12 @@ void SetCoveringLp::appendColumn(const Column& route)
 }
 
 
+int SetCoveringLp::getNbCols() const
+{
+    return m_y.size();
+}
+
+
 double SetCoveringLp::getDual(const int i) const
 {
     DCHECK_F(i >= 0 && i < static_cast<int>(mConstrs.size()));

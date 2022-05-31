@@ -58,7 +58,11 @@ std::vector<GRBVar> init::visitVars(
         double pi = pRMP->getDual(i); // get the pi from the |V| first constrs
         std::ostringstream oss;
         oss << "y_" << i;
-        y.push_back(model.addVar(0, 1, -pi, GRB_BINARY, oss.str()));
+        y.push_back(model.addVar(i == 0 ? 1 : 0,
+                                 1,
+                                 i == 0 ? 0 : -pi,
+                                 GRB_BINARY,
+                                 oss.str()));
     }
 
     return y;

@@ -39,6 +39,8 @@ public:
 
     void appendColumn(const Column& columns);
 
+    int getNbCols() const;
+
     double getDual(const int i) const;
 
 private:

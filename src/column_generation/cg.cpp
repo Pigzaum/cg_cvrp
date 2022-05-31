@@ -16,6 +16,7 @@
 #include "../../include/column_generation/column.hpp"
 #include "../../include/column_generation/set_covering_lp.hpp"
 #include "../../include/column_generation/pctsp_ilp.hpp"
+#include "../../include/utils/constants.hpp"
 #include "../../include/utils/stopwatch.hpp"
 
 
@@ -41,7 +42,8 @@ bool Cg::execute(const ConfigParameters::solver& solverParams)
         solved = mpRMP->optimize(solverParams);
 
         RAW_LOG_F(INFO, "CG(%d): UB %.2f, %d colums, %.2fs ",
-            iter, mpRMP->get(GRB_DoubleAttr_ObjVal), 0, stopwatch.elapsed());
+            iter, mpRMP->get(GRB_DoubleAttr_ObjVal), mpRMP->getNbCols(),
+            stopwatch.elapsed());
 
         ++iter;
     }
@@ -67,7 +69,7 @@ bool Cg::generateColumn()
 
     DRAW_LOG_F(INFO, "rc: %.2f", rc);
 
-    if (rc < 0)
+    if (rc < -utils::GRB_EPSILON)
     {
         // append column
         mpRMP->appendColumn(column);
