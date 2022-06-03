@@ -47,6 +47,8 @@ public:
 
     std::pair<Column, double> extractColumn() const;
 
+    void updateVisitVarsObjCoeff();
+
 private:
 
     // visit variables

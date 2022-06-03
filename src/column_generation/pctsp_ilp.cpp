@@ -31,6 +31,7 @@
 #include "../../include/column_generation/init_grb_model.hpp"
 #include "../../include/column_generation/set_covering_lp.hpp"
 #include "../../include/utils/constants.hpp"
+#include "../../include/utils/tools.hpp"
 
 
 /* ----------------------------- private methods ---------------------------- */
@@ -70,7 +71,8 @@ std::pair<Column, double> PctspIlp::extractColumn() const
             double cost = mModel.get(GRB_DoubleAttr_ObjVal);
             for (int i = 0; i < mpInst->getNbVertices(); ++i)
             {
-                if (m_y[i].get(GRB_DoubleAttr_X) > utils::GRB_EPSILON)
+                if (utils::tools::varExists(m_y[i]) &&
+                    m_y[i].get(GRB_DoubleAttr_X) > utils::GRB_EPSILON)
                 {
                     column.addVertex(i);
                     cost -= m_y[i].get(GRB_DoubleAttr_Obj);
@@ -93,10 +95,37 @@ std::pair<Column, double> PctspIlp::extractColumn() const
     return {column, rc};
 }
 
+
+void PctspIlp::updateVisitVarsObjCoeff()
+{
+    try
+    {
+        for (int i = 1; i < mpInst->getNbVertices(); ++i) // skip depot
+        {
+            if (utils::tools::varExists(m_y[i]))
+            {
+                m_y[i].set(GRB_DoubleAttr_Obj, -mpRMP->getDual(i));
+            }
+        }
+    }
+    catch (GRBException& e)
+    {
+        RAW_LOG_F(FATAL, "PctspIlp::updateVisitVarsObjCoeff(): C-Exp: %s",
+            e.getMessage().c_str());
+    }
+    catch (...)
+    {
+        RAW_LOG_F(FATAL,
+            "PctspIlp::updateVisitVarsObjCoeff(): Unknown Exception");
+    }
+}
+
 /* ----------------------------- private methods ---------------------------- */
 
 void PctspIlp::initModel()
 {
+    DRAW_LOG_F(INFO, "Building TSP with prize collection problem...");
+
     try
     {
         const std::string modelName = cBaseName + mpInst->getName();
@@ -104,7 +133,7 @@ void PctspIlp::initModel()
 
         // variables
         m_x = init::routingVars(mModel, mpInst);
-        m_y = init::visitVars(mModel, mpRMP, mpInst);
+        m_y = init::visitVars(mModel, mpInst);
 
         // constraints
         init::matchingConstrs(mModel, m_y, m_x, mpInst);

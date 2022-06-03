@@ -25,6 +25,7 @@ Cg::Cg(const ConfigParameters::cg& params,
        const std::shared_ptr<const Instance>& pInst) :
     mParams(params),
     mpRMP(std::make_shared<SetCoveringLp>(initialColumns, pInst)),
+    mpSubproblem(std::make_shared<PctspIlp>(mpRMP, pInst)),
     mpInst(pInst)
 {
 }
@@ -41,7 +42,7 @@ bool Cg::execute(const ConfigParameters::solver& solverParams)
         // solve the restricted main problem
         solved = mpRMP->optimize(solverParams);
 
-        RAW_LOG_F(INFO, "CG(%d): UB %.2f, %d colums, %.2fs ",
+        RAW_LOG_F(INFO, "CG(%d): UB %.2f, %d columns, %.2fs ",
             iter, mpRMP->get(GRB_DoubleAttr_ObjVal), mpRMP->getNbCols(),
             stopwatch.elapsed());
 
@@ -52,6 +53,20 @@ bool Cg::execute(const ConfigParameters::solver& solverParams)
            stopwatch.elapsed() < mParams.timeLimit_ &&
            generateColumn());
 
+    /* post processing step: if solution is fractional, then impose integrality
+       on y variables and solve it again */
+    if (!mpRMP->isSolutionInteger())
+    {
+        RAW_LOG_F(INFO, "Imposing integrality on y vars...");
+        mpRMP->imposeIntegrality();
+        mpRMP->optimize();
+        RAW_LOG_F(INFO, "ILP: UB %.2f, LB %.2f, gap %.2f, %.2fs ",
+            mpRMP->get(GRB_DoubleAttr_ObjVal),
+            mpRMP->get(GRB_DoubleAttr_ObjBound),
+            mpRMP->get(GRB_DoubleAttr_MIPGap),
+            stopwatch.elapsed());
+    }
+
     return solved;
 }
 
@@ -59,19 +74,16 @@ bool Cg::execute(const ConfigParameters::solver& solverParams)
 
 bool Cg::generateColumn()
 {
-    // build subproblem
-    PctspIlp subproblem(mpRMP, mpInst);
+    // update the y vars of coeff with the dual values from the main problem
+    mpSubproblem->updateVisitVarsObjCoeff();
 
     // solve subproblem
-    subproblem.optimize();
+    mpSubproblem->optimize();
 
-    auto [column, rc] = subproblem.extractColumn();
-
-    DRAW_LOG_F(INFO, "rc: %.2f", rc);
+    auto [column, rc] = mpSubproblem->extractColumn();
 
     if (rc < -utils::GRB_EPSILON)
     {
-        // append column
         mpRMP->appendColumn(column);
         return true;
     }

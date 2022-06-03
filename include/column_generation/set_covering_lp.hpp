@@ -43,6 +43,10 @@ public:
 
     double getDual(const int i) const;
 
+    void imposeIntegrality();
+
+    bool isSolutionInteger() const;
+
 private:
 
     std::vector<GRBVar> m_y;

@@ -45,7 +45,6 @@ std::vector<GRBVar> init::routeVars(
 
 std::vector<GRBVar> init::visitVars(
     GRBModel& model,
-    const std::shared_ptr<SetCoveringLp>& pRMP,
     const std::shared_ptr<const Instance>& pInst)
 {
     DRAW_LOG_F(INFO, "\tInitializing y visit vars...");
@@ -55,12 +54,11 @@ std::vector<GRBVar> init::visitVars(
 
     for (int i = 0; i < pInst->getNbVertices(); ++i)
     {
-        double pi = pRMP->getDual(i); // get the pi from the |V| first constrs
         std::ostringstream oss;
         oss << "y_" << i;
         y.push_back(model.addVar(i == 0 ? 1 : 0,
                                  1,
-                                 i == 0 ? 0 : -pi,
+                                 0, // the coeff will be updatew with pi values
                                  GRB_BINARY,
                                  oss.str()));
     }

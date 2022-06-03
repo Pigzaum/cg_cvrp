@@ -37,7 +37,6 @@ std::vector<GRBVar> routeVars(GRBModel& model,
  * @brief y variables from the TSP subproblem.
  */
 std::vector<GRBVar> visitVars(GRBModel& model,
-                              const std::shared_ptr<SetCoveringLp>& pRMP,
                               const std::shared_ptr<const Instance>& pInst);
 
 /**

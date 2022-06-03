@@ -19,6 +19,8 @@
 #include "../../include/instance.hpp"
 #include "../../include/column_generation/init_grb_model.hpp"
 #include "../../include/column_generation/column.hpp"
+#include "../../include/utils/constants.hpp"
+#include "../../include/utils/tools.hpp"
 
 /* ----------------------------- private methods ---------------------------- */
 
@@ -106,10 +108,66 @@ double SetCoveringLp::getDual(const int i) const
     return pi;
 }
 
+
+void SetCoveringLp::imposeIntegrality()
+{
+    try
+    {
+        // convert variables y to binary
+        std::for_each(std::begin(m_y), std::end(m_y),
+            [](GRBVar &y)
+            {
+                y.set(GRB_CharAttr_VType, GRB_BINARY);
+            });
+    }
+    catch (GRBException& e)
+    {
+        RAW_LOG_F(FATAL, "SetCoveringLp::imposeIntegrality(): C-Exp: %s",
+            e.getMessage().c_str());
+    }
+    catch (...)
+    {
+        RAW_LOG_F(FATAL,
+            "SetCoveringLp::imposeIntegrality(): Unknown Exception");
+    }
+}
+
+
+bool SetCoveringLp::isSolutionInteger() const
+{
+    int nbSolCols = 0;
+
+    try
+    {
+        for (int i = 0; i < static_cast<int>(m_y.size()); ++i)
+        {
+            if (utils::tools::varExists(m_y[i]) &&
+                m_y[i].get(GRB_DoubleAttr_X) > utils::GRB_EPSILON)
+            {
+                ++nbSolCols;
+            }
+        }
+    }
+    catch (GRBException& e)
+    {
+        RAW_LOG_F(FATAL, "SetCoveringLp::isSolutionInteger(): C-Exp: %s",
+            e.getMessage().c_str());
+    }
+    catch (...)
+    {
+        RAW_LOG_F(FATAL,
+            "SetCoveringLp::isSolutionInteger(): Unknown Exception");
+    }
+
+    return nbSolCols == mpInst->getK();
+}
+
 /* ----------------------------- private methods ---------------------------- */
 
 void SetCoveringLp::initModel(const std::vector<Column>& columns)
 {
+    DRAW_LOG_F(INFO, "Building set covering problem...");
+
     try
     {
         const std::string modelName = cBaseName + mpInst->getName();

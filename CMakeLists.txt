@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.08)
 
 # set the project name and version
-project(cg_cvrp VERSION 0.0.12 LANGUAGES CXX)
+project(cg_cvrp VERSION 0.1.01 LANGUAGES CXX)
 
 configure_file("./cmake/cmake_config.hpp.in" "../include/utils/cmake_config.hpp")
 
